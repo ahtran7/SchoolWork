@@ -11,20 +11,22 @@ int CurrentID = 1;
 static int counter[] = { 0,0,0,0 };
 
 void* threadStart(void *arg) {
+	int* ID = (int *) arg;
+	
 	//Check current ID
-	if (!pthread_equal(CurrentID, pthread_self()) && counter[pthread_self() - 1] == 0) {
-		printf("Not My Turn! %d\n", pthread_self());
+	if (!CurrentID == ID && counter[ID - 1] == 0) {
+		printf("Not My Turn! %d\n", ID);
 	}
 
-	while (!pthread_equal(CurrentID, pthread_self())) {
+	while (!CurrentID == ID) {
 
 	}
 
 	//Thread gets turn 
-	if (pthread_equal(CurrentID, pthread_self())) {
+	if (CurrentID == ID) {
 
-		printf("My Turn! %d\n", pthread_self());
-		counter[pthread_self() - 1] += 1;
+		printf("My Turn! %d\n", ID);
+		counter[ID - 1] += 1;
 
 		//increment thread ID
 		CurrentID += 1;
@@ -35,7 +37,7 @@ void* threadStart(void *arg) {
 
 	//print for ten times
 
-	while (counter[pthread_self() - 1] <= 10) {
+	while (ID - 1] <= 10) {
 
 		startThread(NULL);
 
@@ -46,13 +48,19 @@ void* threadStart(void *arg) {
 }
 
 int main(int argc, char *argv[]) {
-	pthread_t tid;
+	int thread_number = 5;
+	pthread_t threads[thread_number];
+	pthread_t tid[thread_number];
+	
+	for(int i = 1; i < thread_number; i++) {
+		tid[i] = i;
+	}	
 
 	//start creating and executing threads
 
 	for (int i = 1; i < 5; i++) {
-		pthread_create(&tid, NULL, &startThread, NULL);
-		pthread_join(tid, NULL);
+		pthread_create(&threads[i], NULL, startThread, tid[i]);
+		pthread_join(threads[i], NULL);
 	}
 
 	pthread_exit(NULL);
